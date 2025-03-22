@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -20,13 +21,18 @@ const shortlistingStatus = ["Accepted", "Rejected"];
 const ApplicantsTable = () => {
   const { applicants } = useSelector((store) => store.application);
 
-  const statusHandler = async (status, id) => {
-    console.log("called");
+  const location = useLocation();
+  const role = location.state?.role;
+
+  console.log("Role: ", role);
+
+  const statusHandler = async (status, id, email) => {
+    // console.log("called");
     try {
       axios.defaults.withCredentials = true;
       const res = await axios.post(
         `${APPLICATION_API_END_POINT}/status/${id}/update`,
-        { status }
+        { status, email, role }
       );
       console.log(res);
       if (res.data.success) {
@@ -84,10 +90,28 @@ const ApplicantsTable = () => {
                       <MoreHorizontal />
                     </PopoverTrigger>
                     <PopoverContent className="w-32">
-                      {shortlistingStatus.map((status, index) => {
+                      {/* {shortlistingStatus.map((status, index) => {
                         return (
                           <div
                             onClick={() => statusHandler(status, item?._id)}
+                            key={index}
+                            className="flex w-fit items-center my-2 cursor-pointer"
+                          >
+                            <span>{status}</span>
+                          </div>
+                        );
+                      })} */}
+
+                      {shortlistingStatus.map((status, index) => {
+                        return (
+                          <div
+                            onClick={() =>
+                              statusHandler(
+                                status,
+                                item?._id,
+                                item?.applicant?.email
+                              )
+                            }
                             key={index}
                             className="flex w-fit items-center my-2 cursor-pointer"
                           >

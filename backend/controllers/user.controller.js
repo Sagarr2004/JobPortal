@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
+import {sendEmail} from "./sendEmail.controllers.js";
 
 export const register = async (req, res) => {
   try {
@@ -37,7 +38,10 @@ export const register = async (req, res) => {
         profilePhoto: cloudResponse.secure_url,
       },
     });
+     
+    await sendEmail(email, "Welcome to Job Portal",`Hello ${fullname}, <br>Your registration was successful!`);
 
+      
     return res.status(201).json({
       message: "Account created successfully.",
       success: true,

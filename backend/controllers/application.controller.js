@@ -1,5 +1,6 @@
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
+import { sendEmail } from "./sendEmail.controllers.js";
 
 export const applyJob = async (req, res) => {
     try {
@@ -97,7 +98,7 @@ export const getApplicants = async (req,res) => {
 }
 export const updateStatus = async (req,res) => {
     try {
-        const {status} = req.body;
+        const {status,email,role} = req.body;
         const applicationId = req.params.id;
         if(!status){
             return res.status(400).json({
@@ -118,6 +119,22 @@ export const updateStatus = async (req,res) => {
         // update the status
         application.status = status.toLowerCase();
         await application.save();
+        
+        // await sendEmail(email, "Job Application Accepted",
+        //     `Congratulations! Your application for "<b>${role}</b>" has been accepted.`);
+
+        await sendEmail(
+            email,
+            "🎉 Great News! You're One Step Closer to Your Dream Job 🚀",
+            ` 
+            <h2>Congratulations! 🎊</h2>
+            <p>Your application for <b>${role}</b> has been <b>accepted</b>! 🌟</p>
+            <p>Get ready to take the next step in your career journey. Our team will be in touch soon with further details.</p>
+            <p>Stay prepared, stay excited, and get ready to shine! ✨</p>
+            <p>Best of luck! 🍀🚀</p>
+            `
+          );
+          
 
         return res.status(200).json({
             message:"Status updated successfully.",
