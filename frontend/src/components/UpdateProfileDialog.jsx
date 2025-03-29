@@ -93,9 +93,11 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                 email: input.email,
                 phoneNumber: input.phoneNumber,
                 bio: input.bio,
-                skills: input.skills.split(",").map(skill => skill.trim()), // Convert to array
+                skills: input.skills.split(",").map(skill => skill.trim()), 
                 resume: fileUrl
             };
+
+            console.log("formData:",formData);
 
             const res = await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
                 withCredentials: true

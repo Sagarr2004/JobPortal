@@ -5,83 +5,6 @@ import {Notification} from "../models/notifications.models.js"
 
 
 
-// export const postJob = async (req, res) => {
-//   try {
-//     const {
-//       title,
-//       description,
-//       requirements,
-//       salary,
-//       location,
-//       jobType,
-//       experience,
-//       position,
-//       companyId,
-//     } = req.body;
-//     const userId = req.id;
-
-//     if (
-//       !title ||
-//       !description ||
-//       !requirements ||
-//       !salary ||
-//       !location ||
-//       !jobType ||
-//       !experience ||
-//       !position ||
-//       !companyId
-//     ) {
-//       return res.status(400).json({
-//         message: "Something is missing.",
-//         success: false,
-//       });
-//     }
-
-//     const job = await Job.create({
-//       title,
-//       description,
-//       requirements: requirements.split(","),
-//       salary: Number(salary),
-//       location,
-//       jobType,
-//       experienceLevel: experience,
-//       position,
-//       company: companyId,
-//       created_by: userId,
-//     });
-
-//     // try {
-//     //     const students = await User.find({ role: "student" }, { fullname: 1, email: 1, _id: 0 });
-
-//     //     if (students.length === 0) {
-//     //         console.log("No students found.");
-//     //         return;
-//     //     }
-
-//     //     const emails = students.map(student => student.email);
-
-//     //     const subject = "Exciting Job Opportunity for Students!";
-//     //     const htmlContent = "<p>Dear Students,</p><p>A new job opportunity has just been posted! This could be a great chance for you to take the next step in your career.</p><p>Don't miss out—check the details and apply now!</p>";
-
-//     //     await sendBulkEmails(emails, subject, htmlContent);
-//     //     console.log("Bulk emails sent successfully!");
-//     // } catch (error) {
-//     //     console.error("Error sending bulk emails:", error);
-//     // }
-  
-
-    
-//     return res.status(201).json({
-//       message: "New job created successfully.",
-//       job,
-//       success: true,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-
 export const postJob = async (req, res) => {
   try {
     const {
@@ -97,8 +20,21 @@ export const postJob = async (req, res) => {
     } = req.body;
     const userId = req.id;
 
-    if (!title || !description || !requirements || !salary || !location || !jobType || !experience || !position || !companyId) {
-      return res.status(400).json({ message: "Something is missing.", success: false });
+    if (
+      !title ||
+      !description ||
+      !requirements ||
+      !salary ||
+      !location ||
+      !jobType ||
+      !experience ||
+      !position ||
+      !companyId
+    ) {
+      return res.status(400).json({
+        message: "Something is missing.",
+        success: false,
+      });
     }
 
     const job = await Job.create({
@@ -114,20 +50,34 @@ export const postJob = async (req, res) => {
       created_by: userId,
     });
 
+    try {
+        const students = await User.find({ role: "student" }, { fullname: 1, email: 1, _id: 0 });
+
+        if (students.length === 0) {
+            console.log("No students found.");
+            return;
+        }
+
+        const emails = students.map(student => student.email);
+
+        const subject = "Exciting Job Opportunity for Students!";
+        const htmlContent = "<p>Dear Students,</p><p>A new job opportunity has just been posted! This could be a great chance for you to take the next step in your career.</p><p>Don't miss out—check the details and apply now!</p>";
+
+        await sendBulkEmails(emails, subject, htmlContent);
+        console.log("Bulk emails sent successfully!");
+    } catch (error) {
+        console.error("Error sending bulk emails:", error);
+    }
+
+
     // Store notification in DB
     const notification = await Notification.create({
       message: `New Job: ${title} at ${location}!`,
       jobId: job._id,
     });
+  
 
-    // Emit real-time event
-    if (req.io) {
-      req.io.emit("newJobPosted", {
-        message: notification.message,
-        job,
-      });
-    }
-
+    
     return res.status(201).json({
       message: "New job created successfully.",
       job,
@@ -135,9 +85,66 @@ export const postJob = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
+
+
+// export const postJob = async (req, res) => {
+//   try {
+//     const {
+//       title,
+//       description,
+//       requirements,
+//       salary,
+//       location,
+//       jobType,
+//       experience,
+//       position,
+//       companyId,
+//     } = req.body;
+//     const userId = req.id;
+
+//     if (!title || !description || !requirements || !salary || !location || !jobType || !experience || !position || !companyId) {
+//       return res.status(400).json({ message: "Something is missing.", success: false });
+//     }
+
+//     const job = await Job.create({
+//       title,
+//       description,
+//       requirements: requirements.split(","),
+//       salary: Number(salary),
+//       location,
+//       jobType,
+//       experienceLevel: experience,
+//       position,
+//       company: companyId,
+//       created_by: userId,
+//     });
+
+//     // Store notification in DB
+//     const notification = await Notification.create({
+//       message: `New Job: ${title} at ${location}!`,
+//       jobId: job._id,
+//     });
+
+//     // Emit real-time event
+//     if (req.io) {
+//       req.io.emit("newJobPosted", {
+//         message: notification.message,
+//         job,
+//       });
+//     }
+
+//     return res.status(201).json({
+//       message: "New job created successfully.",
+//       job,
+//       success: true,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({ message: "Internal Server Error", success: false });
+//   }
+// };
 
 
 export const getNotifications = async (req, res) => {

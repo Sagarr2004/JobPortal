@@ -74,7 +74,9 @@ export const getAppliedJobs = async (req,res) => {
 // admin dekhega kitna user ne apply kiya hai
 export const getApplicants = async (req,res) => {
     try {
+        // const jobId = "67a1092f707de034ca165eeb";
         const jobId = req.params.id;
+        // console.log("JobId: ",jobId);
         const job = await Job.findById(jobId).sort({createdAt:-1}).populate({
             path:'applications',
             options:{sort:{createdAt:-1}},
@@ -88,6 +90,9 @@ export const getApplicants = async (req,res) => {
                 success:false
             })
         };
+        
+        // console.log("Jobs:",job);
+
         return res.status(200).json({
             job, 
             succees:true
@@ -96,52 +101,111 @@ export const getApplicants = async (req,res) => {
         console.log(error);
     }
 }
-export const updateStatus = async (req,res) => {
+
+// export const getApplicants = async (req, res) => {
+//     try {
+//         const jobId = req.params.id;
+
+//         const job = await Job.findById(jobId)
+//             .populate({
+//                 path: "applications",
+//                 options: { sort: { createdAt: -1 } },
+//                 populate: {
+//                     path: "applicant",
+//                     select: "fullname profile.resume" // ✅ Select only necessary fields
+//                 }
+//             });
+
+//         if (!job) {
+//             return res.status(404).json({
+//                 message: "Job not found.",
+//                 success: false
+//             });
+//         }
+
+//         console.log("Jobs:", job);
+
+//         // Extract applicant resumes
+//         const applicantsWithResumes = job.applications
+//             .map(app => ({
+//                 name: app.applicant?.fullname,
+//                 resumeLink: app.applicant?.profile?.resume
+//             }))
+//             .filter(applicant => applicant.resumeLink); // ✅ Remove empty resume entries
+
+//         console.log("Resumes Extracted:", applicantsWithResumes);
+
+//         return res.status(200).json({
+//             success: true,
+//             resumes: applicantsWithResumes
+//         });
+//     } catch (error) {
+//         console.log("Error:", error);
+//         return res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
+
+export const updateStatus = async (req, res) => {
     try {
-        const {status,email,role} = req.body;
+        const { status, email, role } = req.body;
         const applicationId = req.params.id;
-        if(!status){
+
+        if (!status) {
             return res.status(400).json({
-                message:'status is required',
-                success:false
-            })
-        };
+                message: "Status is required",
+                success: false,
+            });
+        }
 
-        // find the application by applicantion id
-        const application = await Application.findOne({_id:applicationId});
-        if(!application){
+        const application = await Application.findById(applicationId);
+
+        if (!application) {
             return res.status(404).json({
-                message:"Application not found.",
-                success:false
-            })
-        };
+                message: "Application not found.",
+                success: false,
+            });
+        }
 
-        // update the status
         application.status = status.toLowerCase();
         await application.save();
-        
-        // await sendEmail(email, "Job Application Accepted",
-        //     `Congratulations! Your application for "<b>${role}</b>" has been accepted.`);
 
-        await sendEmail(
-            email,
-            "🎉 Great News! You're One Step Closer to Your Dream Job 🚀",
-            ` 
-            <h2>Congratulations! 🎊</h2>
-            <p>Your application for <b>${role}</b> has been <b>accepted</b>! 🌟</p>
-            <p>Get ready to take the next step in your career journey. Our team will be in touch soon with further details.</p>
-            <p>Stay prepared, stay excited, and get ready to shine! ✨</p>
-            <p>Best of luck! 🍀🚀</p>
-            `
-          );
-          
+        if (status.toLowerCase() === "accepted") {
+            // Schedule Interview (10 days ahead, with 2-day gap if needed)
+            const interviewDate = await scheduleInterview(email);
+
+            // Save interview date in DB
+            application.interviewDate = interviewDate;
+            await application.save();
+
+            await sendEmail(
+                email,
+                "🎉 Interview Scheduled!",
+                ` 
+                <h2>Great News! 🎊</h2>
+                <p>Your interview for <b>${role}</b> is scheduled on <b>${interviewDate.toDateString()}</b>. 🌟</p>
+                <p>Please check your email for calendar updates.</p>
+                <p>Good luck! 🚀</p>
+                `
+            );
+        } else if (status.toLowerCase() === "rejected") {
+            await sendEmail(
+                email,
+                "⚠ Application Update",
+                `
+                <h2>Thank you for applying</h2>
+                <p>We appreciate your interest in the <b>${role}</b> position.</p>
+                <p>Unfortunately, we have decided to move forward with other candidates.</p>
+                <p>We encourage you to apply again in the future. Best of luck! 🍀</p>
+                `
+            );
+        }
 
         return res.status(200).json({
-            message:"Status updated successfully.",
-            success:true
+            message: "Status updated successfully.",
+            success: true,
         });
-
     } catch (error) {
-        console.log(error);
+        console.error("Error updating status:", error);
+        res.status(500).json({ message: "Internal Server Error", success: false });
     }
-}
+};

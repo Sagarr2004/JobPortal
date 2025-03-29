@@ -168,6 +168,7 @@ const Navbar = () => {
                                 <>
                                     <li><Link to="/admin/companies" title="View Companies">Companies</Link></li>
                                     <li><Link to="/admin/jobs" title="Manage Jobs">Jobs</Link></li>
+                                    {/* <li><Link to="/admin/resumeUploader" title="Resume Uploader">Resume Uploader</Link></li> */}
                                 </>
                             ) : (
                                 <>
@@ -181,8 +182,9 @@ const Navbar = () => {
                                             )}
                                         </Link>
                                     </li>
-                                    <li><Link to="/" title="Home Page">Home</Link></li>
+                                    <li><Link to="/Resume" title="Dashboard">Resume's</Link></li>
                                     <li><Link to="/jobs" title="Browse Jobs">Jobs</Link></li>
+                                    {/* <li><Link to="/Dashboard" title="Browse Jobs">Jobs</Link></li> */}
                                     <li><Link to="/browse" title="Explore More">Browse</Link></li>
                                 </>
                             )

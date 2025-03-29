@@ -15,6 +15,7 @@ import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import Alerts from "./components/Alert"
+// import Dashboard from '../Resume-Builder/src/dashboard/index'
 
 
 const appRouter = createBrowserRouter([
@@ -30,6 +31,24 @@ const appRouter = createBrowserRouter([
     path: '/signup',
     element: <Signup />
   },
+  // {
+  //   path: '/resume',
+  //   element: <Resumes />
+  // },
+  // {
+  //   path: '/resumeUpload',
+  //   element: <ResumeUpload />
+  // },
+  // {
+  //   path: '/resumeSuggestions',
+  //   element: <ResumeSuggestions />
+  // },
+
+
+  // {
+  //   path: '/Dashboard',
+  //   element: <Dashboard />
+  // },
   {
     path: "/alerts",
     element: <Alerts />

@@ -11,7 +11,7 @@ export const sendEmail = async (to, subject, content) => {
   try {
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
     const sendSmtpEmail = {
-      sender: { email: process.env.EMAIL_FROM, name: "Job Portal" },
+      sender: { email: process.env.EMAIL_FROM, name: "HireNest" },
       to: [{ email: to }],
       subject: subject,
       htmlContent: `<p>${content}</p>`, // Supports HTML

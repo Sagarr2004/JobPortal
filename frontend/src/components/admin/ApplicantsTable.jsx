@@ -24,7 +24,7 @@ const ApplicantsTable = () => {
   const location = useLocation();
   const role = location.state?.role;
 
-  console.log("Role: ", role);
+  // console.log("Role: ", role);
 
   const statusHandler = async (status, id, email) => {
     // console.log("called");

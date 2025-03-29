@@ -129,6 +129,7 @@ export const logout = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, bio, skills, resume } = req.body;
+    console.log("FormData:",req.body);
     // const file = req.file;
     const userId = req.id;
     let user = await User.findById(userId);
@@ -163,10 +164,13 @@ export const updateProfile = async (req, res) => {
       user.profile.resume = resume;
       user.profile.resumeOriginalName = "Link";
     }
-    if (typeof skills === "string" && skills.trim() !== "") {
+
+    if (Array.isArray(skills)) {
+      user.profile.skills = skills.map(s => s.trim());
+    } else if (typeof skills === "string" && skills.trim() !== "") {
       user.profile.skills = skills.split(",").map(s => s.trim());
-  }
-  
+    }
+    
 
     await user.save();
 

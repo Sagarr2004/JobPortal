@@ -50,7 +50,7 @@ const Alerts = () => {
       } catch (error) {
         console.error("Error deleting notifications:", error.response?.data?.message || error.message);
       }
-    }, 5000); // Change to 10 * 60 * 1000 for 10 min
+    }, 10000); // Change to 10 * 60 * 1000 for 10 min
 
     return () => {
       socket.off("newJobPosted");
@@ -60,18 +60,25 @@ const Alerts = () => {
   }, []);
 
   return (
-    <div className="alerts">
-      <h2>Student Notifications</h2>
+    <div className="max-w-lg mx-auto mt-8 p-6 bg-white shadow-lg rounded-lg border border-gray-200">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        📢 Student Notifications
+      </h2>
       {notifications.length === 0 ? (
-        <p>No new notifications</p>
+        <p className="text-gray-500">No new notifications</p>
       ) : (
-        notifications.map((notif, index) => (
-          <div key={index} className="notification">
-            {notif}
-          </div>
-        ))
-      )}
-    </div>
+        <div className="space-y-3">
+          {notifications.map((notif, index) => (
+            <div
+              key={index}
+              className="p-3 bg-blue-100 border-l-4 border-blue-500 text-blue-900 rounded-md shadow-sm"
+            >
+              {notif}
+            </div>
+          ))}
+        </div>
+    )}
+   </div>
   );
 };
 

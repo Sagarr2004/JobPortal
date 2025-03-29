@@ -16,6 +16,7 @@ const JobDescription = () => {
 
     const params = useParams();
     const jobId = params.id;
+    console.log("JobId:",jobId);
     const dispatch = useDispatch();
 
     const applyJobHandler = async () => {
